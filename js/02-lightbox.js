@@ -13,7 +13,7 @@ const markup = galleryItems.map(({ original, preview, description }) =>
 //додаємо розмітку до цільового елементу DOM
 galeryEl.insertAdjacentHTML('beforeend', markup);
 
-const gallery = new SimpleLightbox('.gallery a', {captionsData: 'alt', captionDelay: 250});
+const gallery = new SimpleLightbox('.gallery a', {captionsData: 'alt', captionPosition: 'bottom', captionDelay: 250});
 
 //цей рядок був з самого початку
 console.log(galleryItems);

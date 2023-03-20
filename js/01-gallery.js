@@ -1,8 +1,7 @@
 import { galleryItems } from './gallery-items.js';
 // Change code below this line
+//створюємо елемент галереї
 const galeryEl = document.querySelector(".gallery");
-// Створюємо глобальну змінну для модального вікна з зображенням basicLightbox
-let instance;
 //створюємо розмітку при завантаженні сторінки
 const markup = galleryItems.map(({ original, preview, description }) =>
     `<li class="gallery__item">
@@ -19,36 +18,37 @@ const markup = galleryItems.map(({ original, preview, description }) =>
 ).join('');
 //додаємо розмітку до цільового елементу DOM
 galeryEl.insertAdjacentHTML('beforeend', markup);
-//встановлюємо слухача подій на батьківський (цільовий елемент розмітки)
-galeryEl.addEventListener('click', onClick);
-//оброблюємо подію "клік". 1-забороняємо дії за замовчуванням (перехід за посиланням)
-// 2 - показуємо модальне вікно із зображенням.
-// 3 - вішаємо слухача подій для закриття модального вікна по натисканню клавіші 'Escape'
-function onClick(e) {
+
+galeryEl.onclick = (e) => {
+//забороняємо дії за замовчуванням (перехід за посиланням)
     e.preventDefault();
-    onShowModal(e);
-    window.addEventListener('keydown', onEscKeyPress);
-}
-//створюємо елемент - атрибут data-source таргета
-//присвоюємо змінній instance значення використовуючи синтаксис basicLightbox.create
-//використовуєм синтаксис бібіліотеки basicLightbox для показу модального вікна із зображенням
-function onShowModal(e) {
+//фільтр по таргету - створюємо модалку тільки при кліці на елемент галереї
+    if (e.target === e.currentTarget) { return }
+//беремо посилання на велику картинку з дата атрибута таргета
     const imgLink = e.target.dataset.source;
-        instance = basicLightbox.create(`<img src="${imgLink}" width="800" height="600">`);
-        instance.show();
+//об'являємо змінну для html контенту модалки 
+	const html = `<img src="${imgLink}" width="800" height="600">`
+//створюємо модалку з картинкою згідно специфікації бібліотеки basicLightbox
+    const instance = basicLightbox.create(html, {
+//при показі модального вікна виконуємо функцію
+        onShow: (instance) => {
+// вішаємо слухача подій для закриття модального вікна по натисканню клавіші 'Escape'
+            window.addEventListener('keydown', (e) => {
+//присвоюємо коду Ескейпу константу
+                const ESC_KEY_CODE = 'Escape';
+//якщо код натиснутої клавіші співпадає з константою Ескейп - визиваємо метод бібліотеки close()
+                    if(e.code === ESC_KEY_CODE) {
+                        instance.close();
+                    }
+            });
+        },
+        onClose: (instance) => {
+//перед закриттям модального вікна знімаємо слухача подій з window 
+            window.removeEventListener('keydown', () => {});
+        }
+	})
+//показуємо модальне вікно із зображенням.
+    instance.show();
 }
-//перевіряємо чи співпадає код клавіші коду клавіші Escape, при виконанні умови викликаємо функцію закриття
-function onEscKeyPress(e) {
-    const ESC_KEY_CODE = 'Escape';
-    if(e.code === ESC_KEY_CODE) {
-        onCloseModal()
-    }
-}
-//використовуємо глобальну змінну instance та синтаксис бібліотеки basicLightbox
-//знімаємо слухача подій з вікна.
-function onCloseModal() {
-    instance.close();
-    window.removeEventListener('keydown', onEscKeyPress);
-}
-//цей рядок був з самого початку
+// цей рядок був з самого початку
 console.log(galleryItems);
